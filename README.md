@@ -63,7 +63,7 @@ cd ${LDK_DIR}/source
 ./nvbuild.sh
 ./nvbuild.sh -i
 # Use new kernel for recovery image as well
-cp rootfs/boot/Image kernel
+cp ${LDK_DIR}/rootfs/boot/Image ${LDK_DIR}/kernel
 ```
 
 ## Update initramfs
