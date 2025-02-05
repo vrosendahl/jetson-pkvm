@@ -35,6 +35,7 @@ sudo tar -C ${LDK_DIR}/rootfs --numeric-owner -xjvf ${DLDIR}/Tegra_Linux_Sample-
 
 # Install NVIDIA binary Debian packages onto rootfs
 cd ${LDK_DIR}
+sudo ./tools/l4t_flash_prerequisites.sh
 sudo ./apply_binaries.sh
 
 # Skip runtime post installation step
