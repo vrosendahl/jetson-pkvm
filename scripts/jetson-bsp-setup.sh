@@ -39,7 +39,7 @@ sudo ./tools/l4t_flash_prerequisites.sh
 sudo ./apply_binaries.sh
 
 # Skip runtime post installation step
-sudo ./tools/l4t_create_default_user.sh -u nvidia -p nvidia -a --accept-license
+sudo ./tools/l4t_create_default_user.sh -u ubuntu -p ubuntu -a --accept-license
 
 # Install our convenience scripts
 sudo install -d ${LDK_DIR}/rootfs/usr/bin
