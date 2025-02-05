@@ -41,6 +41,9 @@ sudo ./apply_binaries.sh
 # Skip runtime post installation step
 sudo ./tools/l4t_create_default_user.sh -u ubuntu -p ubuntu -a --accept-license
 
+# Make target filesystem faster
+sudo sed -i -e 's/defaults/defaults,noatime,discard/g' ${LDK_DIR}/rootfs/etc/fstab
+
 # Install our convenience scripts
 sudo install -d ${LDK_DIR}/rootfs/usr/bin
 sudo install ${WORKSPACE}/scripts/install-cargo-deps.sh ${LDK_DIR}/rootfs/usr/bin
