@@ -41,6 +41,10 @@ sudo ./apply_binaries.sh
 # Skip runtime post installation step
 sudo ./tools/l4t_create_default_user.sh -u nvidia -p nvidia -a --accept-license
 
+# Install our convenience scripts
+sudo install -d ${LDK_DIR}/rootfs/usr/bin
+sudo install ${WORKSPACE}/scripts/install-cargo-deps.sh ${LDK_DIR}/rootfs/usr/bin
+
 # Install cross-compiler
 mkdir -p ${WORKSPACE}/toolchain
 tar -C ${WORKSPACE}/toolchain -xjvf ${DLDIR}/aarch64--glibc--stable-2022.08-1.tar.bz2
