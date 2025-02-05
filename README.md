@@ -1,3 +1,14 @@
+# Install build dependencies
+
+These are for Ubuntu 24.04.1 LTS.
+
+## OP-TEE and ATF
+
+```
+sudo apt update
+sudo apt install python3-pycryptodome python3-pyelftools
+```
+
 # Set up Jetson 36.4.3
 
 ```
@@ -55,7 +66,6 @@ sed -i -e 's/^KERNEL_DEF_CONFIG=.*$/KERNEL_DEF_CONFIG="'${KERNEL_DEF_CONFIG}'"/'
 sed -i -e 's/^.*5\.15.*$/ifeq (1,1)/' ${LDK_DIR}/source/nvidia-oot/drivers/net/ethernet/Makefile
 ```
 
-
 ## Build and install new kernel
 
 ```
@@ -79,6 +89,49 @@ sudo ./tools/l4t_update_initrd.sh
 cd ${LDK_DIR}
 sudo ./flash.sh jetson-agx-orin-devkit internal
 ```
+
+# Building and flashing Secure World software
+
+## Build OP-TEE
+
+```
+export UEFI_STMM_PATH=${LDK_DIR}/bootloader/standalonemm_optee_t234.bin
+
+cd ${LDK_DIR}/source/tegra/optee-src/nv-optee
+./optee_src_build.sh -p t234
+dtc -I dts -O dtb -o optee/tegra234-optee.dtb optee/tegra234-optee.dts
+```
+
+## Build ARM Trusted Firmware (ATF)
+
+```
+cd ${LDK_DIR}/source/tegra/optee-src/atf
+export NV_TARGET_BOARD=generic
+./nvbuild.sh
+```
+
+## Generate Trusted OS partition image
+
+```
+cd ${LDK_DIR}/nv_tegra/tos-scripts
+./gen_tos_part_img.py \
+    --monitor ${LDK_DIR}/source/tegra/optee-src/atf/arm-trusted-firmware/generic-t234/tegra/t234/release/bl31.bin \
+    --os ${LDK_DIR}/source/tegra/optee-src/nv-optee/optee/build/t234/core/tee-raw.bin \
+    --dtb ${LDK_DIR}/source/tegra/optee-src/nv-optee/optee/tegra234-optee.dtb \
+    --tostype optee \
+    tos.img
+
+cp tos.img ${LDK_DIR}/bootloader/tos-optee_t234.img
+```
+
+## Flash Trusted OS partition
+
+```
+cd ${LDK_DIR}
+sudo ./flash.sh -k A_secure-os jetson-agx-orin-devkit internal
+```
+
+Note that if you are somehow using B slot, the partition name would be `B-secure-os`.
 
 # Steps you might need to know
 
