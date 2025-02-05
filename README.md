@@ -1,3 +1,24 @@
+# Table of contents
+
+- [Install build dependencies](#install-build-dependencies)
+  - [OP-TEE and ATF](#op-tee-and-atf)
+- [Set up Jetson 36.4.3](#set-up-jetson-3643)
+- [Use your own kernel](#use-your-own-kernel)
+  - [Check out Android common kernel](#check-out-android-common-kernel)
+  - [Create new defconfig](#create-new-defconfig)
+  - [Configure NVIDIA build system](#configure-nvidia-build-system)
+  - [Fix Ethernet build](#fix-ethernet-build)
+  - [Build and install new kernel](#build-and-install-new-kernel)
+  - [Update initramfs](#update-initramfs)
+  - [Flash it](#flash-it)
+- [Building and flashing Secure World software](#building-and-flashing-secure-world-software)
+  - [Build OP-TEE](#build-op-tee)
+  - [Build ARM Trusted Firmware (ATF)](#build-arm-trusted-firmware-atf)
+  - [Generate Trusted OS partition image](#generate-trusted-os-partition-image)
+  - [Flash Trusted OS partition](#flash-trusted-os-partition)
+- [Steps you might need to know](#steps-you-might-need-to-know)
+  - [Recreating NVIDIA's original kernel .config](#recreating-nvidias-original-kernel-config)
+
 # Install build dependencies
 
 These are for Ubuntu 24.04.1 LTS.
