@@ -33,7 +33,7 @@ sudo apt install python3-pycryptodome python3-pyelftools
 # Set up Jetson 36.4.3
 
 ```
-git clone https://github.com/hlyytine/jetson-pkvm.git
+git clone https://github.com/vrosendahl/jetson-pkvm.git
 cd jetson-pkvm
 export WORKSPACE=`pwd`
 scripts/jetson-bsp-setup.sh
@@ -45,18 +45,18 @@ echo '. '${WORKSPACE}'/env.sh' >> ${HOME}/.bashrc
 
 # Use your own kernel
 
-## Check out Android common kernel
+## Check out the pKVM kernel for Jetson
 
 ```
 cd ${LDK_DIR}/source/kernel
-git clone -b android15-6.6.66_r00 https://android.googlesource.com/kernel/common android_common_kernel
+git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.git
 ```
 
 ## Create new defconfig
 
 ```
 export ARCH=arm64
-export KERNEL_SRC_DIR=android_common_kernel
+export KERNEL_SRC_DIR=kernel-nvidia-jetson
 export KERNEL_DEF_CONFIG=pkvm_defconfig
 
 cd ${LDK_DIR}/source/kernel/${KERNEL_SRC_DIR}
@@ -104,18 +104,12 @@ cd ${LDK_DIR}
 sudo ./tools/l4t_update_initrd.sh
 ```
 
-## Flash it
-
-```
-cd ${LDK_DIR}
-sudo ./flash.sh jetson-agx-orin-devkit internal
-```
-
-# Building and flashing Secure World software
+# Building Secure World software
 
 ## Build OP-TEE
 
 ```
+unset ARCH
 export UEFI_STMM_PATH=${LDK_DIR}/bootloader/standalonemm_optee_t234.bin
 
 cd ${LDK_DIR}/source/tegra/optee-src/nv-optee
@@ -126,6 +120,10 @@ dtc -I dts -O dtb -o optee/tegra234-optee.dtb optee/tegra234-optee.dts
 ## Build ARM Trusted Firmware (ATF)
 
 ```
+cd ${LDK_DIR}/source/tegra/optee-src
+mv atf atf.orig
+git clone -b pkvm1 https://github.com/tiiuae/atf-nvidia-jetson.git atf
+
 cd ${LDK_DIR}/source/tegra/optee-src/atf
 export NV_TARGET_BOARD=generic
 ./nvbuild.sh
@@ -145,14 +143,21 @@ cd ${LDK_DIR}/nv_tegra/tos-scripts
 cp tos.img ${LDK_DIR}/bootloader/tos-optee_t234.img
 ```
 
-## Flash Trusted OS partition
+# Flash everything
+
+## Fix the flasher if your host is using Debian 13
 
 ```
 cd ${LDK_DIR}
-sudo ./flash.sh -k A_secure-os jetson-agx-orin-devkit internal
+sed -i -e 's/ssh-keygen -t dsa/#ssh-keygen -t dsa/' tools/ota_tools/version_upgrade/ota_make_recovery_img_dtb.sh
 ```
 
-Note that if you are somehow using B slot, the partition name would be `B-secure-os`.
+## Run the flasher to flash everything
+
+```
+cd ${LDK_DIR}
+sudo ./flash.sh -C kvm-arm.mode=protected jetson-agx-orin-devkit internal
+```
 
 # Steps you might need to know
 
@@ -168,3 +173,14 @@ cp ${LDK_DIR}/source/kernel_out/kernel/kernel-jammy-src/.config ${WORKSPACE}/con
 ```
 
 After all, it's just about running `make defconfig`.
+
+## Flash Trusted OS partition (optional)
+
+If you only want to flash the Trusted OS partition and not the whole device, e.g. for testing a new version of ATF or OP-TEE, then you can do the following:
+
+```
+cd ${LDK_DIR}
+sudo ./flash.sh -k A_secure-os jetson-agx-orin-devkit internal
+```
+
+Note that if you are somehow using B slot, the partition name would be `B_secure-os`.

@@ -13,8 +13,8 @@ fi
 
 FILES="
   aarch64--glibc--stable-2022.08-1.tar.bz2
-  Jetson_Linux_R36.4.3_aarch64.tbz2
-  Tegra_Linux_Sample-Root-Filesystem_R36.4.3_aarch64.tbz2
+  Jetson_Linux_r36.4.3_aarch64.tbz2
+  Tegra_Linux_Sample-Root-Filesystem_r36.4.3_aarch64.tbz2
 "
 
 for f in ${FILES}; do
@@ -27,11 +27,16 @@ done
 mkdir -p ${WORKSPACE}
 
 # Unpack Jetson BSP
-tar -C ${WORKSPACE} -xjvf ${DLDIR}/Jetson_Linux_R36.4.3_aarch64.tbz2
+echo "Unpack Jetson BSP from Jetson_Linux_r36.4.3_aarch64.tbz2"
+tar -C ${WORKSPACE} -xjf ${DLDIR}/Jetson_Linux_r36.4.3_aarch64.tbz2
 export LDK_DIR=${WORKSPACE}/Linux_for_Tegra
 
+cd  ${WORKSPACE}
+patch -p1 < patches/0001-Fix-checking-of-Ubuntu-version-to-not-fail-on-Debian.patch
+
 # Unpack sample rootfs
-sudo tar -C ${LDK_DIR}/rootfs --numeric-owner -xjvf ${DLDIR}/Tegra_Linux_Sample-Root-Filesystem_R36.4.3_aarch64.tbz2
+echo "Unpack sample rootfs from Tegra_Linux_Sample-Root-Filesystem_r36.4.3_aarch64.tbz2"
+sudo tar -C ${LDK_DIR}/rootfs --numeric-owner -xjf ${DLDIR}/Tegra_Linux_Sample-Root-Filesystem_r36.4.3_aarch64.tbz2
 
 # Install NVIDIA binary Debian packages onto rootfs
 cd ${LDK_DIR}
@@ -49,14 +54,17 @@ sudo install -d ${LDK_DIR}/rootfs/usr/bin
 sudo install ${WORKSPACE}/scripts/install-cargo-deps.sh ${LDK_DIR}/rootfs/usr/bin
 
 # Install cross-compiler
+echo "Install toolchain from aarch64--glibc--stable-2022.08-1.tar.bz2"
 mkdir -p ${WORKSPACE}/toolchain
-tar -C ${WORKSPACE}/toolchain -xjvf ${DLDIR}/aarch64--glibc--stable-2022.08-1.tar.bz2
+tar -C ${WORKSPACE}/toolchain -xjf ${DLDIR}/aarch64--glibc--stable-2022.08-1.tar.bz2
 cd ${WORKSPACE}/toolchain/aarch64--glibc--stable-2022.08-1
 ./relocate-sdk.sh
 
 # Checkout NVIDIA sources
 cd ${LDK_DIR}/source
 ./source_sync.sh -t jetson_36.4.3
+
+CROSS_COMPILE_AARCH64_PATH=${WORKSPACE}/toolchain/aarch64--glibc--stable-2022.08-1
 
 cat > ${WORKSPACE}/env.sh <<EOF
 WORKSPACE=${WORKSPACE}

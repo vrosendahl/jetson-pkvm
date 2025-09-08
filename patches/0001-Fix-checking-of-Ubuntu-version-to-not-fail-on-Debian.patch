@@ -1,0 +1,48 @@
+From 29095ef303ce62aa8151269a0dc6fad6e1b52bea Mon Sep 17 00:00:00 2001
+From: Viktor Rosendahl <viktor.rosendahl@gmail.com>
+Date: Sat, 6 Sep 2025 00:33:41 +0300
+Subject: [PATCH] Fix checking of Ubuntu version to not fail on Debian
+
+Newer version of Debian works with this script, except that it fails when
+the script checks the content of /etc/lsb-release in order to determine the
+Ubuntu version. We fix this by using the lz4 package name if we are not on
+Ubuntu. This might fail on some really old Debian but that is not important.
+
+Signed-off-by: Viktor Rosendahl <viktor.rosendahl@gmail.com>
+---
+ .../tools/l4t_flash_prerequisites.sh           | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/Linux_for_Tegra/tools/l4t_flash_prerequisites.sh b/Linux_for_Tegra/tools/l4t_flash_prerequisites.sh
+index 82726f1..2cb2744 100755
+--- a/Linux_for_Tegra/tools/l4t_flash_prerequisites.sh
++++ b/Linux_for_Tegra/tools/l4t_flash_prerequisites.sh
+@@ -35,13 +35,19 @@ package_list=(abootimg binfmt-support binutils cpio cpp
+ 	python3-yaml qemu-user-static rsync sshpass
+ 	udev uuid-runtime whois xmlstarlet zstd)
+ 
+-# Install lz4c utility required for compressing bpmp-fw-dtb.
+-# For Ubuntu 18.04 and older version, run "sudo apt-get install liblz4-tool".
+-# For Ubuntu 20.04 and newer version, run "sudo apt-get install lz4".
+-SYSTEM_VER="$(grep "DISTRIB_RELEASE" </etc/lsb-release | cut -d= -f 2 | sed 's/\.//')"
+-if [ "${SYSTEM_VER}" -lt 2004 ]; then
+-	package_list+=(liblz4-tool)
++if [ -e /etc/lsb-release ]; then
++	# Install lz4c utility required for compressing bpmp-fw-dtb.
++	# For Ubuntu 18.04 and older version, run "sudo apt-get install liblz4-tool".
++	# For Ubuntu 20.04 and newer version, run "sudo apt-get install lz4".
++	SYSTEM_VER="$(grep "DISTRIB_RELEASE" </etc/lsb-release | cut -d= -f 2 | sed 's/\.//')"
++	if [ "${SYSTEM_VER}" -lt 2004 ]; then
++		package_list+=(liblz4-tool)
++	else
++		package_list+=(lz4)
++	fi
+ else
++	# Apparently, we are not on Ubuntu at all, just use lz4 and hope for the
++	# best; this works on newer version of Debian
+ 	package_list+=(lz4)
+ fi
+ 
+-- 
+2.39.5
+
