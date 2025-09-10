@@ -4,20 +4,20 @@
   - [OP-TEE and ATF](#op-tee-and-atf)
 - [Set up Jetson 36.4.3](#set-up-jetson-3643)
 - [Use your own kernel](#use-your-own-kernel)
-  - [Check out Android common kernel](#check-out-android-common-kernel)
-  - [Create new defconfig](#create-new-defconfig)
+  - [Check out the pKVM kernel for Jetson](#check-out-android-common-kernel)
   - [Configure NVIDIA build system](#configure-nvidia-build-system)
   - [Fix Ethernet build](#fix-ethernet-build)
   - [Build and install new kernel](#build-and-install-new-kernel)
   - [Update initramfs](#update-initramfs)
-  - [Flash it](#flash-it)
-- [Building and flashing Secure World software](#building-and-flashing-secure-world-software)
+- [Building Secure World software](#buil-secure-world-software)
   - [Build OP-TEE](#build-op-tee)
   - [Build ARM Trusted Firmware (ATF)](#build-arm-trusted-firmware-atf)
   - [Generate Trusted OS partition image](#generate-trusted-os-partition-image)
-  - [Flash Trusted OS partition](#flash-trusted-os-partition)
+ - [Flash everything](#flash-everything)
+  - [Fix the flasher if your host is using Debian 13](#fix-the-flasher-if-your-host-is-using-debian-13)
+  - [Run the flasher to flash everything](#run-the-flasher-to-flash-everything)
 - [Steps you might need to know](#steps-you-might-need-to-know)
-  - [Recreating NVIDIA's original kernel .config](#recreating-nvidias-original-kernel-config)
+  - [Flash Trusted OS partition (optional)](#flash-trusted-os-partition-optional)
 
 # Install build dependencies
 
@@ -52,30 +52,12 @@ cd ${LDK_DIR}/source/kernel
 git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.git
 ```
 
-## Create new defconfig
-
-```
-export ARCH=arm64
-export KERNEL_SRC_DIR=kernel-nvidia-jetson
-export KERNEL_DEF_CONFIG=pkvm_defconfig
-
-cd ${LDK_DIR}/source/kernel/${KERNEL_SRC_DIR}
-cp ${WORKSPACE}/configs/kernel-jammy.config .config
-
-scripts/config --disable SYSTEM_TRUSTED_KEYS
-scripts/config --disable SYSTEM_REVOCATION_KEYS
-scripts/config --enable ARM64_PMEM
-scripts/config --enable VIRTUALIZATION
-scripts/config --enable KVM
-
-make savedefconfig
-mv defconfig arch/arm64/configs/${KERNEL_DEF_CONFIG}
-make mrproper
-```
-
 ## Configure NVIDIA build system
 
 ```
+export KERNEL_SRC_DIR=kernel-nvidia-jetson
+export KERNEL_DEF_CONFIG=jetson_pkvm_defconfig
+
 cd ${LDK_DIR}/source
 sed -i -e 's/^KERNEL_SRC_DIR=.*$/KERNEL_SRC_DIR="'${KERNEL_SRC_DIR}'"/' kernel_src_build_env.sh
 sed -i -e 's/^KERNEL_DEF_CONFIG=.*$/KERNEL_DEF_CONFIG="'${KERNEL_DEF_CONFIG}'"/' kernel_src_build_env.sh
@@ -109,7 +91,6 @@ sudo ./tools/l4t_update_initrd.sh
 ## Build OP-TEE
 
 ```
-unset ARCH
 export UEFI_STMM_PATH=${LDK_DIR}/bootloader/standalonemm_optee_t234.bin
 
 cd ${LDK_DIR}/source/tegra/optee-src/nv-optee
@@ -160,19 +141,6 @@ sudo ./flash.sh -C kvm-arm.mode=protected jetson-agx-orin-devkit internal
 ```
 
 # Steps you might need to know
-
-## Recreating NVIDIA's original kernel .config
-
-`configs/kernel-jammy.config` was created on a fresh Jetson 36.4.3 install
-with the following commands:
-
-```
-cd ${LDK_DIR}/source
-./nvbuild.sh
-cp ${LDK_DIR}/source/kernel_out/kernel/kernel-jammy-src/.config ${WORKSPACE}/configs/kernel-jammy.config
-```
-
-After all, it's just about running `make defconfig`.
 
 ## Flash Trusted OS partition (optional)
 
