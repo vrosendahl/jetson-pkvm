@@ -18,6 +18,8 @@
   - [Run the flasher to flash everything](#run-the-flasher-to-flash-everything)
 - [Steps you might need to know](#steps-you-might-need-to-know)
   - [Flash Trusted OS partition (optional)](#flash-trusted-os-partition-optional)
+  - [Build crosvm on the target](#build-crosvm-on-the-target)
+  - [Run crosvm on the target](#run-crosvm-on-the-target)
 
 # Install build dependencies
 
@@ -152,3 +154,82 @@ sudo ./flash.sh -k A_secure-os jetson-agx-orin-devkit internal
 ```
 
 Note that if you are somehow using B slot, the partition name would be `B_secure-os`.
+
+## Build crosvm on the target
+
+**Log in to the target and do the following to install the build dependencies:**
+
+```
+sudo apt-get install --yes cargo
+sudo apt-get install --yes --no-install-recommends \
+    black \
+    ca-certificates \
+    cargo \
+    clang \
+    cloud-image-utils \
+    curl \
+    dpkg-dev \
+    expect \
+    g++ \
+    gcc \
+    git \
+    ipxe-qemu \
+    jq \
+    libasound2-dev \
+    libavcodec-dev \
+    libavutil-dev \
+    libc-dev \
+    libcap-dev \
+    libclang-dev \
+    libdbus-1-dev \
+    libdrm-dev \
+    libepoxy-dev \
+    libglib2.0-dev \
+    libguestfs-tools \
+    libslirp-dev \
+    libssl-dev \
+    libswscale-dev \
+    libva-dev \
+    libwayland-dev \
+    libxext-dev \
+    make \
+    meson \
+    mypy \
+    nasm \
+    ncat \
+    ninja-build \
+    openssh-client \
+    qemu-efi-aarch64 \
+    qemu-system-aarch64 \
+    qemu-user-static \
+    pipx \
+    pkg-config \
+    protobuf-compiler \
+    python3 \
+    python3-argh \
+    python3-pip \
+    qemu-system-x86 \
+    rsync \
+    screen \
+    strace \
+    tmux \
+    wayland-protocols \
+    wget
+```
+
+**To build and install crosvm:**
+
+```
+mkdir git
+cd git
+git clone https://chromium.googlesource.com/crosvm/crosvm
+cd crosvm
+git checkout 11ca07c8c01a1f5f1132b678ef61b11245d3b8d3  # This step is optional, if you want to use the exactly same revision
+git submodule update --init
+cargo build 2>&1 |tee out-build.txt
+sudo install ./target/debug/crosvm /usr/local/bin
+```
+
+## Run crosvm on the target
+
+The [pkvm-aarch64 repository](https://github.com/vrosendahl/pkvm-aarch64) can be used to build suitable guest images. There is also the [run-crosvm.sh script](https://raw.githubusercontent.com/vrosendahl/pkvm-aarch64/refs/heads/main/scripts/run-crosvm.sh), which can be used to start crosvm with reasonable paramters and set up the networking for the guest.
