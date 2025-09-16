@@ -2,7 +2,7 @@
 
 - [Install build dependencies](#install-build-dependencies)
   - [OP-TEE and ATF](#op-tee-and-atf)
-- [Set up Jetson 36.4.3](#set-up-jetson-3643)
+- [Set up Jetson 36.4.4](#set-up-jetson-3644)
 - [Use your own kernel](#use-your-own-kernel)
   - [Check out the pKVM kernel for Jetson](#check-out-android-common-kernel)
   - [Configure NVIDIA build system](#configure-nvidia-build-system)
@@ -32,7 +32,7 @@ sudo apt update
 sudo apt install python3-pycryptodome python3-pyelftools
 ```
 
-# Set up Jetson 36.4.3
+# Set up Jetson 36.4.4
 
 ```
 git clone https://github.com/vrosendahl/jetson-pkvm.git
@@ -105,7 +105,7 @@ dtc -I dts -O dtb -o optee/tegra234-optee.dtb optee/tegra234-optee.dts
 ```
 cd ${LDK_DIR}/source/tegra/optee-src
 mv atf atf.orig
-git clone -b pkvm1 https://github.com/tiiuae/atf-nvidia-jetson.git atf
+git clone -b l4t/l4t-r36.4.4-pkvm1 https://github.com/tiiuae/atf-nvidia-jetson.git atf
 
 cd ${LDK_DIR}/source/tegra/optee-src/atf
 export NV_TARGET_BOARD=generic
