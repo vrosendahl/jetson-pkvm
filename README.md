@@ -13,7 +13,7 @@
   - [Build OP-TEE](#build-op-tee)
   - [Build ARM Trusted Firmware (ATF)](#build-arm-trusted-firmware-atf)
   - [Generate Trusted OS partition image](#generate-trusted-os-partition-image)
- - [Flash everything](#flash-everything)
+- [Flash everything](#flash-everything)
   - [Fix the flasher if your host is using Debian 13](#fix-the-flasher-if-your-host-is-using-debian-13)
   - [Run the flasher to flash everything](#run-the-flasher-to-flash-everything)
 - [Steps you might need to know](#steps-you-might-need-to-know)
