@@ -60,7 +60,7 @@ git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.gi
 ```
 cd ${LDK_DIR}/source
 mv nvidia-oot nvidia-oot.orig
-git clone -b l4t/l4t-r36.4.4-pkvm git@github.com:vrosendahl/nvidia-oot-jetson.git nvidia-oot
+git clone -b l4t/l4t-r36.4.4-pkvm https://github.com/vrosendahl/nvidia-oot-jetson.git nvidia-oot
 ln -s ../../../../../../nvethernetrm nvidia-oot/drivers/net/ethernet/nvidia/nvethernet/nvethernetrm
 ```
 
