@@ -5,6 +5,7 @@
 - [Set up Jetson 36.4.4](#set-up-jetson-3644)
 - [Use your own kernel](#use-your-own-kernel)
   - [Check out the pKVM kernel for Jetson](#check-out-android-common-kernel)
+  - [Check out the modified Nvidia out-of-tree kernel modules](#check-out-nvidia-oot-modules)
   - [Configure NVIDIA build system](#configure-nvidia-build-system)
   - [Fix Ethernet build](#fix-ethernet-build)
   - [Build and install new kernel](#build-and-install-new-kernel)
@@ -52,6 +53,15 @@ echo '. '${WORKSPACE}'/env.sh' >> ${HOME}/.bashrc
 ```
 cd ${LDK_DIR}/source/kernel
 git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.git
+```
+
+## Check out the modified Nvidia out-of-tree kernel modules
+
+```
+cd ${LDK_DIR}/source
+mv nvidia-oot nvidia-oot.orig
+git clone -b l4t/l4t-r36.4.4-pkvm git@github.com:vrosendahl/nvidia-oot-jetson.git nvidia-oot
+ln -s ../../../../../../nvethernetrm nvidia-oot/drivers/net/ethernet/nvidia/nvethernet/nvethernetrm
 ```
 
 ## Configure NVIDIA build system
