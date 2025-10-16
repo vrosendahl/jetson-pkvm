@@ -60,7 +60,7 @@ git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.gi
 ```
 cd ${LDK_DIR}/source
 mv nvidia-oot nvidia-oot.orig
-git clone -b l4t/l4t-r36.4.4-pkvm2 https://github.com/tiiuae/nvidia-oot-jetson.git nvidia-oot
+git clone -b l4t/l4t-r36.4.4-pkvm3 https://github.com/tiiuae/nvidia-oot-jetson.git nvidia-oot
 ln -s ../../../../../../nvethernetrm nvidia-oot/drivers/net/ethernet/nvidia/nvethernet/nvethernetrm
 ```
 
@@ -115,7 +115,7 @@ dtc -I dts -O dtb -o optee/tegra234-optee.dtb optee/tegra234-optee.dts
 ```
 cd ${LDK_DIR}/source/tegra/optee-src
 mv atf atf.orig
-git clone -b l4t/l4t-r36.4.4-pkvm1 https://github.com/tiiuae/atf-nvidia-jetson.git atf
+git clone -b l4t/l4t-r36.4.4-pkvm2 https://github.com/tiiuae/atf-nvidia-jetson.git atf
 
 cd ${LDK_DIR}/source/tegra/optee-src/atf
 export NV_TARGET_BOARD=generic
