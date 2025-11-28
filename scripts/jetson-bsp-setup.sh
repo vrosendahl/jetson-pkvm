@@ -64,6 +64,10 @@ cd ${WORKSPACE}/toolchain/aarch64--glibc--stable-2022.08-1
 cd ${LDK_DIR}/source
 ./source_sync.sh -t jetson_36.4.4
 
+echo "Patching the nvdisplay driver for 6.6.76 and later..."
+cd ${LDK_DIR}/source/nvdisplay
+git am ../../../patches/0001-nv-dsi-parse-panel-props-Adapt-usage-of-of_property_.patch
+
 CROSS_COMPILE_AARCH64_PATH=${WORKSPACE}/toolchain/aarch64--glibc--stable-2022.08-1
 
 cat > ${WORKSPACE}/env.sh <<EOF

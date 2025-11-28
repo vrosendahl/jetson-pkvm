@@ -52,7 +52,7 @@ echo '. '${WORKSPACE}'/env.sh' >> ${HOME}/.bashrc
 
 ```
 cd ${LDK_DIR}/source/kernel
-git clone -b linux-6.6.y-pkvm4 https://github.com/tiiuae/kernel-nvidia-jetson.git
+git clone -b linux-6.6.y-pkvm5 https://github.com/tiiuae/kernel-nvidia-jetson.git
 ```
 
 ## Check out the modified Nvidia out-of-tree kernel modules

@@ -1,0 +1,68 @@
+From cee2e984256d56e6484fee6e9f919feb4abc8fc6 Mon Sep 17 00:00:00 2001
+From: Viktor Rosendahl <viktor.rosendahl@gmail.com>
+Date: Thu, 27 Nov 2025 23:23:08 +0200
+Subject: [PATCH] nv-dsi-parse-panel-props: Adapt usage of
+ of_property_for_each_u32()
+
+The Linux 6.6.y branch has a commit for making the argument passing to
+of_property_for_each_u32() safer:
+914ef7d1a702 ("of: remove internal arguments from of_property_for_each_u32()")
+
+Two variables that previously were exposed are now internal, reducing the
+number of arguments from 5 to 3.
+
+Thus we need to patch this driver in order to make it compatible with
+kernels 6.6.76 and later.
+
+Signed-off-by: Viktor Rosendahl <viktor.rosendahl@gmail.com>
+---
+ kernel-open/nvidia/nv-dsi-parse-panel-props.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/kernel-open/nvidia/nv-dsi-parse-panel-props.c b/kernel-open/nvidia/nv-dsi-parse-panel-props.c
+index 9ac5866..5213ee3 100644
+--- a/kernel-open/nvidia/nv-dsi-parse-panel-props.c
++++ b/kernel-open/nvidia/nv-dsi-parse-panel-props.c
+@@ -286,12 +286,25 @@ static int dsi_parse_pps_data
+     return 0U;
+ }
+ 
++/*
++ * The change first appeared in Linux 6.11 and was backported to 6.6.76 because
++ * 6.6.y is an LTS branch. Apparently, the branches from 6.7.x to 6.10.x were
++ * too short lived to receive this fix.
++ */
++#define OF_PROP_FOR_EACH_U32_IS_NEW()			    \
++	((LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 76) && \
++	  LINUX_VERSION_CODE < KERNEL_VERSION(6, 7, 0)) || \
++	 (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)))
++
++
+ static int parse_dsi_properties(const struct device_node *np_dsi, DSI_PANEL_INFO *dsi)
+ {
+     u32 temp;
+     int ret = 0;
++#if !OF_PROP_FOR_EACH_U32_IS_NEW()
+     const __be32 *p;
+     struct property *prop;
++#endif
+     struct device_node *np_dsi_panel;
+ 
+     // Get Panel Node from active-panel phandle
+@@ -493,8 +506,13 @@ static int parse_dsi_properties(const struct device_node *np_dsi, DSI_PANEL_INFO
+         "nvidia,dsi-lvds-bridge", &temp))
+         dsi->dsi2lvds_bridge_enable = (bool)temp;
+ 
++#if OF_PROP_FOR_EACH_U32_IS_NEW()
++    of_property_for_each_u32(np_dsi_panel, "nvidia,dsi-dpd-pads", temp)
++        dsi->dpd_dsi_pads |= (u32)temp;
++#else
+     of_property_for_each_u32(np_dsi_panel, "nvidia,dsi-dpd-pads", prop, p, temp)
+         dsi->dpd_dsi_pads |= (u32)temp;
++#endif
+ 
+     if (!of_property_read_u32(np_dsi_panel,
+         "nvidia,dsi-power-saving-suspend", &temp))
+-- 
+2.47.3
+
